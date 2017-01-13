@@ -26,7 +26,7 @@ var W3CWebSocket = require('websocket').w3cwebsocket;
 
 var OPENING_MESSAGE_PARAMS_ALLOWED = ['continuous', 'max_alternatives', 'timestamps', 'word_confidence', 'inactivity_timeout',
   'content-type', 'interim_results', 'keywords', 'keywords_threshold', 'word_alternatives_threshold', 'profanity_filter',
-  'smart_formatting', 'speaker_labels' ];
+  'smart_formatting', 'speaker_labels', 'firmup_silence_time' ];
 
 var QUERY_PARAMS_ALLOWED = ['model', 'X-Watson-Learning-Opt-Out', 'watson-token', 'customization_id'];
 
