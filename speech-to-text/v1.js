@@ -237,18 +237,12 @@ SpeechToTextV1.prototype.observeResult = function(params, callback) {
  * @deprecated use createRecognizeStream instead
  */
 SpeechToTextV1.prototype.getRecognizeStatus = function(params, callback) {
-  var missingParams = helper.getMissingParams(params, ['session_id']);
-  if (missingParams) {
-    callback(missingParams);
-    return;
-  }
-
-  var path = params || {};
   var parameters = {
+    requiredParams: ['session_id'],
     options: {
       method: 'GET',
-      url: '/v1/sessions/' + path.session_id + '/recognize',
-      path: path,
+      url: '/v1/sessions/{session_id}/recognize',
+      path: pick(params, ['session_id']),
       json: true
     },
     defaultOptions: this._options
@@ -285,16 +279,14 @@ SpeechToTextV1.prototype.getModels = function(params, callback) {
  * @returns {ReadableStream|undefined}
  */
 SpeechToTextV1.prototype.getModel = function(params, callback) {
-  var path = params || {};
-
   var parameters = {
+    requiredParams: ['model_id'],
     options: {
       method: 'GET',
-      url: '/v1/models/' + path.model_id,
-      path: path,
+      url: '/v1/models/{model_id}',
+      path: pick(params, ['model_id']),
       json: true
     },
-    requiredParams: ['model_id'],
     defaultOptions: this._options
   };
   return requestFactory(parameters, callback);
@@ -304,7 +296,6 @@ SpeechToTextV1.prototype.getModel = function(params, callback) {
  * Create a session
  * Set-cookie header is returned with a cookie that must be used for
  * each request using this session.
- * The session expires after 15 minutes of inactivity.
  *
  * @param {Object} params The parameters
  * @param {string} params.model - The model to use during the session
@@ -343,17 +334,13 @@ SpeechToTextV1.prototype.createSession = function(params, callback) {
  * @param {String} params.session_id - Session id.
  */
 SpeechToTextV1.prototype.deleteSession = function(params, callback) {
-  var missingParams = helper.getMissingParams(params, ['session_id']);
-  if (missingParams) {
-    callback(missingParams);
-    return;
-  }
-
   var parameters = {
+    requiredParams: ['session_id'],
     options: {
       method: 'DELETE',
-      url: '/v1/sessions/' + params.session_id,
-      json: true
+      url: '/v1/sessions/{session_id}',
+      json: true,
+      path: pick(params, ['session_id']),
     },
     defaultOptions: this._options
   };
@@ -411,6 +398,7 @@ SpeechToTextV1.prototype.createRecognizeStream = function(params) {
  */
 SpeechToTextV1.prototype.createCustomization = function(params, callback) {
   var parameters = {
+    requiredParams: ['base_model_name', 'name'],
     options: {
       method: 'POST',
       url: '/v1/customizations',
@@ -467,7 +455,7 @@ SpeechToTextV1.prototype.createCustomization = function(params, callback) {
 ```
  *
  * @param {Object} params The parameters
- * @param {String} [params.language] optional filter. Currently only en-US is supported.
+ * @param {String} [params.language] optional filter.
  * @param {Function} callback
  */
 SpeechToTextV1.prototype.getCustomizations = function(params, callback) {
@@ -486,10 +474,6 @@ SpeechToTextV1.prototype.getCustomizations = function(params, callback) {
   };
   return requestFactory(parameters, callback);
 };
-
-function isPending(customization) {
-  return (customization.status === 'pending' || customization.status === 'training')
-}
 
 /**
  * Get customization details
@@ -598,7 +582,7 @@ SpeechToTextV1.prototype.deleteCustomization = function(params, callback) {
  * @param {Object} params The parameters
  * @param {String} params.customization_id - The GUID of the custom language model to which a corpus is to be added. You must make the request with the service credentials of the model's owner.
  * @param {String} params.name - The name of the corpus that is to be added. The name cannot contain spaces and cannot be the string user, which is reserved by the service to denote custom words added or modified by the user.
- * @param {Boolean [parms.allow_overwrite=false] - Indicates whether the specified corpus is to overwrite an existing corpus with the same name. If a corpus with the same name already exists, the request fails unless allow_overwrite is set to true; by default, the parameter is false. The parameter has no effect if a corpus with the same name does not already exist.
+ * @param {Boolean} [parms.allow_overwrite=false] - Indicates whether the specified corpus is to overwrite an existing corpus with the same name. If a corpus with the same name already exists, the request fails unless allow_overwrite is set to true; by default, the parameter is false. The parameter has no effect if a corpus with the same name does not already exist.
  * @param {String|Buffer|ReadStream} [params.corpus] - the text of the corpus - may be provided as a String, a Buffer, or a ReadableStream. A ReadableStream is recommended when reading a file from disk.
  * @param {Function} callback
  */
@@ -724,7 +708,7 @@ SpeechToTextV1.ERR_TIMEOUT = 'ERR_TIMEOUT';
 /**
  * Waits while a customization status is 'pending' or 'training', fires callback once the status is 'ready' or 'available'.
  *
- * Note: the customization will remain in 'pending' status until at least one corpus is added. Calling this on a customization with no corpa will result in an error.
+ * Note: the customization will remain in 'pending' status until at least one word corpus is added.
  *
  * See http://www.ibm.com/watson/developercloud/speech-to-text/api/v1/#list_models for status details.
  *
@@ -737,25 +721,8 @@ SpeechToTextV1.ERR_TIMEOUT = 'ERR_TIMEOUT';
 SpeechToTextV1.prototype.whenCustomizationReady = function(params, callback) {
   var self = this;
 
-  async.parallel([
+    // check the customization status repeatedly until it's ready or available
 
-    // validate that it has at least one corpus
-    function(next) {
-      self.getCorpora(params, function(err, res) {
-        if (err) {
-          return next(err);
-        }
-        if (!res.corpora.length) {
-          err = new Error('Customization has no corpa and therefore will never be ready.');
-          err.code = SpeechToTextV1.ERR_NO_CORPORA;
-          return next(err)
-        }
-        next();
-      })
-    },
-
-    // check the customization status repeatedly until it's ready or avaliable
-    function(next) {
       var options = extend({
         interval: 5000,
         times: 30
@@ -766,32 +733,24 @@ SpeechToTextV1.prototype.whenCustomizationReady = function(params, callback) {
         // if the params.times limit is reached, the error will be passed to the user regardless
         return err.code === SpeechToTextV1.ERR_TIMEOUT;
       };
-      async.retry(options, function(done) {
+      async.retry(options, function(next) {
         self.getCustomization(params, function(err, customization) {
           if (err) {
-            done(err);
-          } else if (isPending(customization)) {
+            next(err);
+          } else if (customization.status === 'pending' || customization.status === 'training') {
             // if the loop times out, async returns the last error, which will be this one.
             err = new Error('Customization is still pending, try increasing interval or times params');
             err.code = SpeechToTextV1.ERR_TIMEOUT;
-            done(err);
+            next(err);
           } else if (customization.status === 'ready' || customization.status === 'available') {
-            done(null, customization);
+            next(null, customization);
           } else if (customization.status === 'failed') {
-            done(new Error('Customization training failed'));
+            next(new Error('Customization training failed'));
           } else {
-            done(new Error('Unexpected customization status: ' + customization.status));
+            next(new Error('Unexpected customization status: ' + customization.status));
           }
         })
-      }, next)
-    }
-
-  ], function(err, res) {
-    if (err) {
-      return callback(err);
-    }
-    callback(null, res[1]); // callback with the final customization object
-  });
+      }, callback);
 };
 
 // Check if there is a corpus that is still being processed

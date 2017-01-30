@@ -31,7 +31,6 @@ describe('speech_to_text_integration', function() {
   });
 
   it('recognize()', function(done) {
-    var speech_to_text = watson.speech_to_text(auth.speech_to_text);
     var params = {
       audio: fs.createReadStream(path.join(__dirname, '../resources/weather.ogg')),
       content_type: 'audio/ogg; codec=opus'
@@ -41,7 +40,6 @@ describe('speech_to_text_integration', function() {
 
 
   it('recognize() keywords', function(done) {
-    var speech_to_text = watson.speech_to_text(auth.speech_to_text);
     var params = {
       audio: fs.createReadStream(path.join(__dirname, '../resources/weather.ogg')),
       keywords: ['hail', 'tornadoes', 'rain'],
@@ -112,12 +110,10 @@ describe('speech_to_text_integration', function() {
   });
 
   it('getModels()', function(done) {
-    var speech_to_text = watson.speech_to_text(auth.speech_to_text);
     speech_to_text.getModels({}, done);
   });
 
   it('createRecognizeStream()',  function (done) {
-    var speech_to_text = watson.speech_to_text(auth.speech_to_text);
     var recognizeStream = speech_to_text.createRecognizeStream({content_type: 'audio/l16; rate=44100'});
     recognizeStream.setEncoding('utf8');
     fs.createReadStream(path.join(__dirname, '../resources/weather.flac'))
@@ -131,7 +127,6 @@ describe('speech_to_text_integration', function() {
   });
 
   it('createRecognizeStream() - no words',  function (done) {
-    var speech_to_text = watson.speech_to_text(auth.speech_to_text);
     var recognizeStream = speech_to_text.createRecognizeStream({content_type: 'audio/l16; rate=44100'});
     recognizeStream.setEncoding('utf8');
     fs.createReadStream(path.join(__dirname, '../resources/blank.wav'))
@@ -151,7 +146,7 @@ describe('speech_to_text_integration', function() {
     function waitUntilReady(test) {
       return function(done) {
         this.timeout(TWO_MINUTES);
-        speech_to_text.whenCustomizationReady({customization_id: customization_id, interval: 250, times: 600}, function(err) {
+        speech_to_text.whenCustomizationReady({customization_id: customization_id, interval: 250, times: 400}, function(err) {
           if (err && err.code !== watson.SpeechToTextV1.ERR_NO_CORPORA) {
             return done(err);
           }
@@ -225,14 +220,14 @@ describe('speech_to_text_integration', function() {
       });
     });
 
-    //todo: see about moving two of these to unit tests in order to speed things up - train and then delete avoids the need for two
-    it('addCorpus() - stream', waitUntilReady(function(done) {
+    //note: no waitUntilReady() on the first one because it'll never be ready until after the first word or corpus is added
+    it('addCorpus() - stream', function(done) {
       speech_to_text.addCorpus({
         customization_id: customization_id,
         name: 'test_corpus_1',
         corpus: fs.createReadStream(path.join(__dirname, '../resources/speech_to_text/corpus-short-1.txt'))
       }, done);
-    }));
+    });
 
     it('addCorpus() - buffer', waitUntilReady(function(done) {
       //var customization_id='adfab4c0-9708-11e6-be92-bb627d4684b9';
@@ -308,15 +303,23 @@ describe('speech_to_text_integration', function() {
       speech_to_text.trainCustomization({customization_id: customization_id}, done);
     }));
 
+    it('recognize() - with customization', waitUntilReady(function(done) {
+      var params = {
+        audio: fs.createReadStream(path.join(__dirname, '../resources/weather.ogg')),
+        content_type: 'audio/ogg; codec=opus',
+        customization_id: customization_id,
+      };
+      speech_to_text.recognize(params, done);
+    }));
+
     it('resetCustomization()', waitUntilReady(function(done) {
       speech_to_text.resetCustomization({customization_id: customization_id}, done);
     }));
 
-    it('deleteCustomization()', waitUntilReady(function(done) {
+    it('deleteCustomization()', function(done) {
       //var customization_id = '7964f4c0-97ab-11e6-8ac8-6333954f158e';
       speech_to_text.deleteCustomization({customization_id: customization_id}, done);
       customization_id = null;
-    }));
+    });
   });
-
 });

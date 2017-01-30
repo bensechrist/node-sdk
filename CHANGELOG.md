@@ -1,9 +1,35 @@
-# 2.14.3
+# v2.15.5
+* stt.whenCustomizationReady() no longer incorrectly requires that a corpus be added. (#382)
+* various JSDoc corrections
+
+# v2.15.2
+* Fix slightly-incorrect URL in Language Translator V2 example and error message
+
+# v2.15.0
+* SDK now emits missing parameter errors on returned stream if no callback is supplied (#368 / #377)
+
+# v2.14.8
+* Fix DocumentConversion#convert() to accept config params as documented in api ref
+* Fix param checking on various TTS customization methods
+
+# v2.14.6
+* Fix incorrect error messates (#373)
+
+# v2.14.5
+* Fix issue where adding a document as buffer/string fails in Discovery v1 (#370)
+* Fix issue where STT RecognizeStream could fail to emit speaker_labels event in rare circumstances
+
+# v2.14.4
 * Update jsdoc for Speech to text
+
+# v2.14.3
+* Expose discovery v1 in index
 
 # v2.14.2
 * Same fix for language translation
 
+# v2.14.7
+* Fixed DocumentConversionV1.convert() to accept config params as a seperate object, matching api ref documentation (#375)
 
 # v2.14.6
 * Fix regression in error handler that would incorrectly overwrite error message in some cases
