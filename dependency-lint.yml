@@ -18,17 +18,19 @@ executedModules:
       - watchify
       - minify
       - build
+      - compat-check
   shellScripts:
     dev: []
     ignore: []
     root: ''
 
 ignoreErrors:
-  missing: []
   shouldBeDependency: []
   shouldBeDevDependency: []
   unused:
    - karma-*
+   - eslint-*
+   - shebang-loader # webpack
 
 requiredModules:
   files:
@@ -38,7 +40,7 @@ requiredModules:
       - 'node_modules/**/*'
       - 'examples/**/*'
       - 'dist/*'
-      - 'jsdoc/**/*'
+      - 'scripts/**/*'
     root: '**/*.js'
   stripLoaders: false
   transpilers: []
