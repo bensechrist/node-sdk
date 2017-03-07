@@ -1,3 +1,37 @@
+# v2.25.1
+* Natural Language Understanding: fixed credentials pulling from bluemix
+
+# v2.25.0
+* Natural Language Understanding: new version_date and addition of listModels() and deleteModel() methods
+
+# v2.24.1
+* STT RecognizeStream now exposes Transaction ID
+
+# v2.23.1
+* Restored support for Node.js 4.0-4.4
+
+# v2.23.0
+* Added support for Conversation intents and examples
+
+# v2.22.2
+* Speech to Text createRecognitionJob() now accepts all params from .recognize()
+* Speech to Text getRecognitionJobs() accepts an optional params object in order to match the signature of the rest of the API
+
+# v2.22.1
+* Make callback_url optional for Speech to Text createRecognitionJob()
+
+# v2.22.0
+* Speech to Text Asychronous API support
+
+# v2.21.0
+* Added support for sort paramater in SpeechToTextV1.getWords()
+* Added updateDocument() method to DiscoveryV1
+* Fixed up internal code to avoid using the deprecated `new Buffer(...)` API
+* Improved documentation
+
+# v2.20.0
+* Conversation VersionDate 2017-02-03
+
 # v2.19.0
 * Added support for find_preferable_options flag in Tradeoff Analytics
 

@@ -23,7 +23,7 @@ const pick = require('object.pick');
 
 /**
  *
- * @param options
+ * @param {Object} options
  * @constructor
  */
 function DiscoveryV1(options) {
@@ -302,7 +302,7 @@ DiscoveryV1.prototype.deleteCollection = function(params, callback) {
  * @param {string} [params.configuration_id] config guid
  * @param {string} [params.metadata] file metadata, including content-type (will infer if missing)
  * @param callback
- * @returns {ReadableStream|undefined}
+ * @return {ReadableStream|undefined}
  */
 DiscoveryV1.prototype.addDocument = function(params, callback) {
   params = params || {};
@@ -314,9 +314,9 @@ DiscoveryV1.prototype.addDocument = function(params, callback) {
   if (formDataParams.file) {
     if (
       typeof formDataParams.file.filename !== 'string' &&
-        !(formDataParams.file.options && typeof formDataParams.file.options.filename !== 'string') &&
-        !(formDataParams.file.path && typeof formDataParams.file.path !== 'string') &&
-        !(formDataParams.file.name && typeof formDataParams.file.name !== 'string')
+      !(formDataParams.file.options && typeof formDataParams.file.options.filename !== 'string') &&
+      !(formDataParams.file.path && typeof formDataParams.file.path !== 'string') &&
+      !(formDataParams.file.name && typeof formDataParams.file.name !== 'string')
     ) {
       const filedat = formDataParams.file;
       // the filename used below is because the name must exist
@@ -343,13 +343,13 @@ DiscoveryV1.prototype.addDocument = function(params, callback) {
  * Update or partially update a document to create or replace an existing document
  * @param params
  * @param {String} params.environment_id environment guid for the collection
- * @param {string} params.collection_id the guid of the collection 
+ * @param {string} params.collection_id the guid of the collection
  * @param {string} params.document_id the guid of the document to update
  * @param {Buffer|ReadableStream|Object} params.file a file to post (smaller than 50mb)
  * @param {string} [params.configuration_id] config guid
  * @param {string} [params.metadata] file metadata, including content-type (will infer if missing)
  * @param callback
- * @returns {ReadableStream|undefined}
+ * @return {ReadableStream|undefined}
  */
 DiscoveryV1.prototype.updateDocument = function(params, callback) {
   params = params || {};
@@ -361,9 +361,9 @@ DiscoveryV1.prototype.updateDocument = function(params, callback) {
   if (formDataParams.file) {
     if (
       typeof formDataParams.file.filename !== 'string' &&
-        !(formDataParams.file.options && typeof formDataParams.file.options.filename !== 'string') &&
-        !(formDataParams.file.path && typeof formDataParams.file.path !== 'string') &&
-        !(formDataParams.file.name && typeof formDataParams.file.name !== 'string')
+      !(formDataParams.file.options && typeof formDataParams.file.options.filename !== 'string') &&
+      !(formDataParams.file.path && typeof formDataParams.file.path !== 'string') &&
+      !(formDataParams.file.name && typeof formDataParams.file.name !== 'string')
     ) {
       const filedat = formDataParams.file;
       // the filename used below is because the name must exist
@@ -393,7 +393,7 @@ DiscoveryV1.prototype.updateDocument = function(params, callback) {
  * @param {string} params.collection_id the guid of the collection to delete
  * @param {string} params.document_id the guid of the document to delete
  * @param callback
- * @returns {ReadableStream|undefined}
+ * @return {ReadableStream|undefined}
  */
 DiscoveryV1.prototype.deleteDocument = function(params, callback) {
   params = params || {};
